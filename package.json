@@ -1,0 +1,58 @@
+{
+  "name": "bp-wallet",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.18.0",
+    "@tanstack/react-query": "^5.90.5",
+    "axios": "^1.12.2",
+    "framer-motion": "^12.23.24",
+    "next": "16.0.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@chromatic-com/storybook": "^4.1.1",
+    "@storybook/addon-a11y": "^9.1.15",
+    "@storybook/addon-docs": "^9.1.15",
+    "@storybook/addon-vitest": "^9.1.15",
+    "@storybook/nextjs-vite": "^9.1.15",
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.7.0",
+    "@vitest/browser-playwright": "^4.0.3",
+    "@vitest/coverage-v8": "^4.0.3",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.0",
+    "eslint-plugin-storybook": "^9.1.15",
+    "from": "^0.1.7",
+    "import": "^0.0.6",
+    "jsdom": "^27.0.1",
+    "msw": "^2.11.6",
+    "playwright": "^1.56.1",
+    "postcss": "^8.5.6",
+    "prisma": "^6.18.0",
+    "react": "^19.2.0",
+    "storybook": "^9.1.15",
+    "tailwindcss": "^4.1.16",
+    "typescript": "^5",
+    "vitest": "^4.0.3",
+    "whatwg-fetch": "^3.6.20"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  }
+}

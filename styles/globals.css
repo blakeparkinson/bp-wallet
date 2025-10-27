@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+
+/* --- Base Theme Tokens --- */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+/* --- Tailwind v4 Theme Section --- */
+@theme {
+  /* Brand Colors */
+  --color-primary: #6c5dd3;      /* Benepass purple */
+  --color-secondary: #f8f7ff;    /* light lilac background */
+  --color-accent: #ffb347;       /* warm accent */
+  --color-brandRed: #e53935;     /* Benepass red */
+
+  /* Neutral / Greys */
+  --neutral-200: #f7f8fa;
+  --neutral-300: #e9eaf0;
+  --neutral-400: #d8dae3;
+  --neutral-500: #b8bac3;
+  --neutral-600: #888b94;
+  --neutral-700: #4b5166;
+  --neutral-800: #14192b;
+
+  /* Other Brand Colors */
+  --midnight-blue: #211c5c;
+  --razzmatazz: #ed0e61;
+  --white: #ffffff;
+  --primary-1: #0144e4;
+  --grey: #5e6269;
+  --indigo-20: #d3d2de;
+  --indigo-40: #a6a4be;
+  --indigo-70: #64608d;
+  --purple-10: #ececf4;
+  --steel-blue: #0e8ece;
+  --gainsboro: #dee0e5;
+
+  /* Text Colors */
+  --color-text-primary: #1e1e1e;
+  --color-text-secondary: #6b7280;
+
+  /* Background + Foreground */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* Base styles */
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
