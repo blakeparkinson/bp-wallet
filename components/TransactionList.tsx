@@ -8,7 +8,10 @@ interface Transaction {
 }
 
 export default function TransactionList({ transactions }: { transactions: Transaction[] }) {
-  const transactionsWithBalance: (Transaction & { runningBalance: number })[] = transactions.reduce(
+  const sortedTransactions = [...transactions].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  )
+  const transactionsWithBalance: (Transaction & { runningBalance: number })[] = sortedTransactions.reduce(
     (acc, tx) => {
       const previousBalance = acc.length > 0 ? acc[acc.length - 1].runningBalance : 0
       acc.push({ ...tx, runningBalance: previousBalance + tx.amount })
