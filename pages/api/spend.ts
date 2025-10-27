@@ -1,11 +1,12 @@
 // pages/api/transactions.ts (example)
 import { prisma } from "@/lib/prisma"
+import type { NextApiRequest, NextApiResponse } from "next"
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const { userId, description, amount, type } = req.body
-
-  console.log("hereee")
-  console.log(userId, description, amount)
 
   if (!userId || !description || !amount || !type) {
     return res.status(400).json({ error: "Missing fields" })

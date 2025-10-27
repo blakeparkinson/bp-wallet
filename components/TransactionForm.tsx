@@ -14,8 +14,8 @@ export default function TransactionForm({ userId }: { userId: string }) {
     queryKey: ["summary", userId],
     queryFn: async () => {
       const resp = await axios.get(`/api/transactions?userId=${userId}`)
-      const transactions = resp.data
-      const total = transactions.reduce((acc, tx) => acc + tx.amount, 0)
+      const transactions: { amount: number }[] = resp.data
+      const total = transactions.reduce((acc: number, tx: { amount: number }) => acc + tx.amount, 0)
       return { total }
     },
     refetchInterval: 5000,

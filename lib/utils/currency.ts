@@ -1,9 +1,17 @@
 import axios from "axios"
 
-let cachedRates = null
-let lastFetched = 0
+interface ExchangeRates {
+  [key: string]: number
+}
 
-export async function convertCurrency(amount, from, to) {
+let cachedRates: ExchangeRates | null = null
+let lastFetched: number = 0
+
+export async function convertCurrency(
+  amount: number,
+  from: string,
+  to: string
+): Promise<number> {
   if (from === to) return amount
 
   // cache rates for 1 hour
@@ -15,14 +23,19 @@ export async function convertCurrency(amount, from, to) {
     lastFetched = Date.now()
   }
 
-  if (!cachedRates[from] || !cachedRates[to]) {
+  if (!cachedRates) {
+    throw new Error("Exchange rates not available")
+  }
+
+  if (!cachedRates || !cachedRates[from] || !cachedRates[to]) {
     throw new Error(`Unsupported currency: ${from} or ${to}`)
   }
 
   if (from === "USD") return amount * cachedRates[to]
-  if (to === "USD") return amount / cachedRates[from]
+  if (to === "USD" && cachedRates) return amount / cachedRates[from]
 
   // convert via USD
+
   const inUSD = amount / cachedRates[from]
   return inUSD * cachedRates[to]
 }

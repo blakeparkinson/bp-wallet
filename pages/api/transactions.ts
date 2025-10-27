@@ -1,7 +1,11 @@
 import { prisma } from "@/lib/prisma"
 import { convertCurrency } from "@/lib/utils/currency"
+import type { NextApiRequest, NextApiResponse } from "next"
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method === "GET") {
     const { userId } = req.query
     if (!userId) return res.status(400).json({ error: "Missing userId" })
@@ -25,8 +29,6 @@ export default async function handler(req, res) {
 
     const user = await prisma.user.findUnique({ where: { id: userId } })
     if (!user) return res.status(404).json({ error: "User not found" })
-
-    console.log("user", user)
 
     // 💱 Convert to USD if needed (ledger stays in USD)
     const amountInUSD =

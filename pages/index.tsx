@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <div className="space-y-8 p-6">
       <BalanceSummary transactions={transactions} />
-      <TransactionForm userId={USER_ID} onSuccess={refetch} />
+      <TransactionForm userId={USER_ID} />
       <TransactionList transactions={transactions} />
     </div>
   )

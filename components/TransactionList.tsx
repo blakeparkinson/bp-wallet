@@ -8,11 +8,15 @@ interface Transaction {
 }
 
 export default function TransactionList({ transactions }: { transactions: Transaction[] }) {
-  let runningBalance = 0
-  const transactionsWithBalance = transactions.map((tx) => {
-    runningBalance += tx.amount
-    return { ...tx, runningBalance }
-  })
+  const transactionsWithBalance: (Transaction & { runningBalance: number })[] = transactions.reduce(
+    (acc, tx) => {
+      const previousBalance = acc.length > 0 ? acc[acc.length - 1].runningBalance : 0
+      acc.push({ ...tx, runningBalance: previousBalance + tx.amount })
+      return acc
+    },
+    [] as (Transaction & { runningBalance: number })[]  
+  )
+
 
   return (
     <div className="space-y-3 max-w-md mx-auto">
