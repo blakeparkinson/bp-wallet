@@ -21,7 +21,7 @@ BP Wallet is a full-stack application designed for managing user transactions. I
 
 ## 🚀 Tech Stack
 
--   **Frontend**: Next.js, React, Tailwind CSS
+-   **Frontend**: Next.js, React, Tailwind CSS, Storybook
 -   **Backend**: Node.js, Prisma ORM
 -   **Database**: PostgreSQL
 -   **Testing**: Vitest, MSW (Mock Service Worker)
