@@ -85,7 +85,7 @@ All endpoints use `const CURRENT_USER_ID = "u_123"` (no client userId allowed).
 
 - **Routing**: Next.js API routes
 - **Business Logic**: Prisma service per endpoint
-- **Data Access**: Prisma ORM (SQLite / mock)
+- **Data Access**: Prisma ORM (Postgres/supabase/ mock)
 - **Testing**: Vitest + MSW mocks for API integration
 
 ### Concurrency Handling
@@ -124,7 +124,6 @@ Balance updates use `prisma.$transaction()` to ensure atomicity when multiple cl
 ### Cuts
 
 - Full authentication & sessions (stubbed)
-- Real DB migrations / persistent seeding
 - Pagination (used `findMany` without limits)
 - Detailed benefit history or timeline views
 
