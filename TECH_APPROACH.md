@@ -85,7 +85,7 @@ All endpoints use `const CURRENT_USER_ID = "u_123"` (no client userId allowed).
 
 - **Routing**: Next.js API routes
 - **Business Logic**: Prisma service per endpoint
-- **Data Access**: Prisma ORM (Postgres/supabase/ mock)
+- **Data Access**: Prisma ORM (Postgres/supabase)
 - **Testing**: Vitest + MSW mocks for API integration
 
 ### Concurrency Handling
@@ -126,6 +126,7 @@ Balance updates use `prisma.$transaction()` to ensure atomicity when multiple cl
 - Full authentication & sessions (stubbed)
 - Pagination (used `findMany` without limits)
 - Detailed benefit history or timeline views
+- Originally was going to make a django app but went with next.js for speed
 
 ### Alternatives Considered
 
@@ -145,3 +146,22 @@ Balance updates use `prisma.$transaction()` to ensure atomicity when multiple cl
 | **Internationalization**  | Multi-currency conversions and localization            |
 | **Testing & CI/CD**       | Add Playwright e2e + GitHub Actions                    |
 | **UX Polish**             | Animated transitions, a11y audit, keyboard shortcuts   |
+
+
+Scaling Prompt Response — Scaling to 1 Million Users
+
+At one million users, the current Next.js + Prisma monolith would face serious scaling bottlenecks — mainly from serverless cold starts, limited database connections, and shared execution environments. While Next.js excels for rapid iteration and full-stack development, it’s not ideal for a backend handling high-frequency transactional updates.
+
+To evolve, We'd move toward a service-oriented architecture, keeping Next.js for the frontend and lightweight API aggregation, while extracting transaction and balance logic into dedicated backend services deployed on Kubernetes. These would be split into read and write microservices, each optimized for its access pattern:
+
+Write service enforces the budget rule, updates ledgers, and emits domain events.
+
+Read service serves cached and denormalized balance/transaction data for fast queries.
+
+An API gateway would sit in front to route traffic, handle authentication, rate limiting, and aggregation. Services would communicate asynchronously via a message bus (e.g., Pub/Sub or Kafka) to ensure scalability and resilience.
+
+The database would evolve into a sharded Postgres setup with optimistic concurrency control and idempotent balance updates to guarantee correctness. Frequently accessed data like /balances would be cached in Redis, while analytics workloads hit read replicas.
+
+Reliability would come from structured logging, distributed tracing (OpenTelemetry), and performance tracking (Sentry, Datadog). React Query would still manage client-side caching, but all data fetching would go through the API gateway to reduce coupling.
+
+This hybrid model keeps Next.js for UI agility while enabling independently scalable, event-driven services designed for throughput, resilience, and long-term growth.
