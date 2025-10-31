@@ -1,69 +1,63 @@
-import { prisma } from "@/lib/prisma"
-import { convertCurrency } from "@/lib/utils/currency"
+import { prisma } from "@/lib/prisma" // Make sure this path is correct
 import type { NextApiRequest, NextApiResponse } from "next"
+
+// fetch the user id from the headers
+// TODO: Replace this with a proper authentication system.
+const CURRENT_USER_ID = "u_123"
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method === "GET") {
-    const { userId } = req.query
-    if (!userId) return res.status(400).json({ error: "Missing userId" })
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId as string },
-      include: { transactions: { orderBy: { date: "desc" } } },
-    })
-
-    if (!user) return res.status(404).json({ error: "User not found" })
-
-    return res.json(user.transactions)
+  if (req.method !== "GET") {
+    res.setHeader("Allow", ["GET"])
+    return res.status(405).json({ error: "Method not allowed" })
   }
 
-  if (req.method === "POST") {
-    const { userId, amount, description, type, currency = "USD" } = req.body
-
-    if (!userId || !amount || !description || !type) {
-      return res.status(400).json({ error: "Missing fields" })
+  try {
+    const { search, categoryId } = req.query
+    // Build the dynamic 'where' clause for filtering
+    const where: {
+      userId: string
+      benefitCategoryId?: string
+      OR?: Array<{
+        description?: { contains: string; mode: string }
+        merchant?: { name: { contains: string; mode: string } }
+      }>
+    } = {
+      userId: CURRENT_USER_ID, // Scope to the current user
     }
 
-    const user = await prisma.user.findUnique({ where: { id: userId } })
-    if (!user) return res.status(404).json({ error: "User not found" })
-
-    // 💱 Convert to USD if needed (ledger stays in USD)
-    const amountInUSD =
-      currency === "USD"
-        ? amount
-        : await convertCurrency(amount, currency, "USD")
-
-    // 💸 Prevent overspending (based on USD balance)
-    if (type === "SPEND" && amountInUSD > user.balance) {
-      return res.status(400).json({ error: "Insufficient balance" })
+    if (categoryId) {
+      where.benefitCategoryId = categoryId as string
     }
 
-    // 💾 Create the transaction
-    const transaction = await prisma.transaction.create({
-      data: {
-        description,
-        amount: type === "SPEND" ? -amountInUSD : amountInUSD, // always store in USD
-        originalAmount: amount,
-        originalCurrency: currency,
-        type,
-        userId,
+    if (search) {
+      const searchString = search as string
+      // Filter on transaction description OR merchant name
+      where.OR = [
+        { description: { contains: searchString, mode: "insensitive" } },
+        { merchant: { name: { contains: searchString, mode: "insensitive" } } },
+      ]
+    }
+
+    const transactions = await prisma.transaction.findMany({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      where: where as any,
+      include: {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        merchant: { select: { name: true } }, // Include merchant name
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        benefitCategory: { select: { name: true } }, // Include category name
       },
+      orderBy: { date: "desc" },
     })
 
-    // 🧮 Update user balance in USD
-    const updatedBalance =
-      user.balance + (type === "SPEND" ? -amountInUSD : amountInUSD)
-
-    await prisma.user.update({
-      where: { id: userId },
-      data: { balance: updatedBalance },
-    })
-
-    return res.status(201).json(transaction)
+    return res.status(200).json(transactions)
+  } catch (error) {
+    console.error("Error fetching transactions:", error)
+    return res.status(500).json({ error: "Internal server error" })
   }
-
-  return res.status(405).json({ error: "Method not allowed" })
 }

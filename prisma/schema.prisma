@@ -11,25 +11,60 @@ model User {
   id           String        @id @default(cuid())
   name         String
   email        String        @unique
-  balance      Float         @default(0)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   transactions Transaction[]
+  balances     Balance[] // User has many benefit balances
+}
+
+// For benefit categories like "Wellness", "Food"
+model BenefitCategory {
+  id            String        @id @default(cuid())
+  name          String // e.g., "Wellness", "Food", "Transport"
+  annualBalance Int // Stored in cents
+  balances      Balance[] // Has many user balances
+  transactions  Transaction[] // Has many transactions
+}
+
+// Joins User and BenefitCategory, holds remaining balance
+model Balance {
+  id                String          @id @default(cuid())
+  remainingBalance  Int // Stored in cents
+  userId            String
+  user              User            @relation(fields: [userId], references: [id])
+  benefitCategoryId String
+  benefitCategory   BenefitCategory @relation(fields: [benefitCategoryId], references: [id])
+
+  @@unique([userId, benefitCategoryId]) // Ensures a user has only one balance per category
+}
+
+// merchant data
+model Merchant {
+  id           String        @id @default(cuid())
+  name         String // e.g., "Starbucks", "Equinox"
+  transactions Transaction[] // A merchant can have many transactions
 }
 
 model Transaction {
-  id               String          @id @default(cuid())
-  description      String
-  amount           Float
-  originalAmount   Float           @default(0)
-  originalCurrency String          @default("USD")
-  type             TransactionType
-  date             DateTime        @default(now())
-  userId           String
-  user             User            @relation(fields: [userId], references: [id])
+  id          String   @id @default(cuid())
+  description String
+  amount      Int // Stored in cents
+  date        DateTime @default(now())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  // RELATIONS
+  merchantId String
+  merchant   Merchant @relation(fields: [merchantId], references: [id])
+
+  benefitCategoryId String
+  benefitCategory   BenefitCategory @relation(fields: [benefitCategoryId], references: [id])
+
+  status TransactionStatus @default(PENDING) // To track "eligible" status
 }
 
-enum TransactionType {
-  DEPOSIT
-  SPEND
+enum TransactionStatus {
+  PENDING
+  ELIGIBLE
+  DECLINED
 }

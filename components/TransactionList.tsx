@@ -1,66 +1,105 @@
+import { motion } from "framer-motion"
+import MarkEligibleButton from "./MarkEligibleButton"
+import TransactionDetail from "./TransactionDetail"
+import { useState } from "react"
+
 interface Transaction {
   id: string
-  description: string
-  amount: number          // always stored in USD (ledger)
-  originalAmount: number  // user-input amount before conversion
-  originalCurrency: string
   date: string
+  merchant?: { name: string }
+  amount: number
+  status: string
 }
 
-export default function TransactionList({ transactions }: { transactions: Transaction[] }) {
-  const sortedTransactions = [...transactions].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  )
-  const transactionsWithBalance: (Transaction & { runningBalance: number })[] = sortedTransactions.reduce(
-    (acc, tx) => {
-      const previousBalance = acc.length > 0 ? acc[acc.length - 1].runningBalance : 0
-      acc.push({ ...tx, runningBalance: previousBalance + tx.amount })
-      return acc
-    },
-    [] as (Transaction & { runningBalance: number })[]  
-  )
+interface Balance {
+  id: string
+  name: string
+}
 
+interface TransactionListProps {
+  transactions: Transaction[]
+  balances: Balance[]
+  search: string
+  setSearch: (search: string) => void
+  categoryId: string
+  setCategoryId: (categoryId: string) => void
+  isLoading: boolean
+}
+
+export default function TransactionList({
+  transactions,
+  balances,
+  search,
+  setSearch,
+  categoryId,
+  setCategoryId,
+  isLoading,
+}: TransactionListProps) {
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null)
 
   return (
-    <div className="space-y-3 max-w-md mx-auto">
-      {transactionsWithBalance.map((tx) => (
-        <div
-          key={tx.id}
-          className={`p-4 rounded-xl flex justify-between items-center shadow-card border ${
-            tx.amount >= 0 ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
-          }`}
-        >
-          <div className="flex flex-col">
-            <span className="font-medium">{tx.description}</span>
-            <span className="text-xs text-text-secondary">
-              {new Date(tx.date).toLocaleDateString()}
-            </span>
-            {/* Show the original amount and currency if not USD */}
-            {tx.originalCurrency !== "USD" && (
-              <span className="text-xs text-gray-500">
-                ({tx.originalCurrency} {tx.originalAmount.toFixed(2)})
-              </span>
-            )}
-          </div>
+    <div className="space-y-4">
 
-          <div className="flex flex-col items-end">
-            <span
-              className={`font-semibold ${
-                tx.amount >= 0 ? "text-green-700" : "text-red-700"
-              }`}
+      {/* Filters */}
+      <div className="flex gap-3">
+        <input
+          className="flex-1 border rounded-md px-3 py-2"
+          placeholder="Search transactions..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <select
+          className="border rounded-md px-3 py-2"
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+        >
+          <option value="">All Categories</option>
+          {balances?.map((b) => (
+            <option key={b.id} value={b.id}>{b.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* List */}
+      {isLoading ? (
+        <div className="space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="border p-4 rounded-lg shadow-card bg-orange-50 text-orange-700 font-bold"
+              animate={{ y: [0, -4, 0], opacity: [0.6, 1, 0.6], rotate: [0, 2, -2, 0] }}
+              transition={{ duration: 1.2, repeat: Infinity, repeatType: "loop", delay: i * 0.2 }}
             >
-              {tx.amount >= 0 ? "+" : "-"}${Math.abs(tx.amount).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </span>
-            {/* Optional: show running balance */}
-            <span className="text-xs text-gray-500">
-              Bal: ${tx.runningBalance.toFixed(2)}
-            </span>
-          </div>
+              👻 Spooky Transaction Loading… 👻
+            </motion.div>
+          ))}
         </div>
-      ))}
-    </div>
+      ) : transactions?.length === 0 ? (
+        <p className="text-gray-500">No transactions found</p>
+      ) : (
+        <div className="space-y-3">
+          {transactions.map((tx) => (
+            <div
+              key={tx.id}
+              onClick={() => setSelectedTx(tx)}
+              className="flex justify-between items-center border p-4 rounded-lg shadow-card"
+            >
+              <div>
+                <p className="font-medium">{tx.merchant?.name}</p>
+                <p className="text-sm text-gray-600">
+                  ${(tx.amount / 100).toFixed(2)} • {tx.status}
+                </p>
+              </div>
+              {tx.status.toLowerCase() !== "eligible" && (
+                <MarkEligibleButton transactionId={tx.id} status={tx.status} />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+<TransactionDetail transaction={selectedTx} onClose={() => setSelectedTx(null)} />
+</div>
   )
 }
