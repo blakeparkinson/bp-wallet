@@ -9,6 +9,8 @@ interface TransactionDetailProps {
     date?: string
     merchant?: { name: string }
     benefitCategory?: { name: string }
+    description?: string
+
   } | null
   onClose: () => void
 }
@@ -41,9 +43,11 @@ export default function TransactionDetail({ transaction, onClose }: TransactionD
           </button>
 
           <div className="space-y-3">
+            
             <h2 className="text-xl font-semibold text-gray-900">
               {transaction.merchant?.name || "Unknown Merchant"}
             </h2>
+            <p className="text-lg text-gray-500">{transaction.description}</p>
             <p className="text-sm text-gray-500">
               {transaction.benefitCategory?.name} •{" "}
               {new Date(transaction.date || "").toLocaleDateString()}
