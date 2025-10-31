@@ -19,11 +19,10 @@ export default function Home() {
   const [categoryId, setCategoryId] = useState("")
 
   const { data: transactions, isLoading: txLoading } = useQuery({
-    queryKey: ["transactions", USER_ID, search, categoryId],
+    queryKey: ["transactions", search, categoryId],
     queryFn: async () => {
       const res = await axios.get(`/api/transactions`, {
         params: {
-          userId: USER_ID,
           search: search || undefined,
           categoryId: categoryId || undefined,
         },
