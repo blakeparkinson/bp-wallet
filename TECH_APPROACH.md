@@ -32,7 +32,7 @@ A full-stack mini Benefits Wallet app with:
 - **Merchant** (1) — has many → Transactions
 - **Transaction** — belongs to User, Merchant, and BenefitCategory
 
-### 🧮 Key Fields (in cents)
+### 🧮 Key Fields
 
 | Entity           | Field              | Type                                     | Notes                      |
 | ---------------- | ------------------ | ---------------------------------------- | -------------------------- |
@@ -146,9 +146,10 @@ Balance updates use `prisma.$transaction()` to ensure atomicity when multiple cl
 | **Internationalization**  | Multi-currency conversions and localization            |
 | **Testing & CI/CD**       | Add Playwright e2e + GitHub Actions                    |
 | **UX Polish**             | Animated transitions, a11y audit, keyboard shortcuts   |
+| **Elastic Search**        | Current searching isn't scalable
 
 
-Scaling Prompt Response — Scaling to 1 Million Users
+## Scaling Prompt Response — Scaling to 1 Million Users
 
 At one million users, the current Next.js + Prisma monolith would face serious scaling bottlenecks — mainly from serverless cold starts, limited database connections, and shared execution environments. While Next.js excels for rapid iteration and full-stack development, it’s not ideal for a backend handling high-frequency transactional updates.
 
