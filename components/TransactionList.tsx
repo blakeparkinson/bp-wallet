@@ -83,7 +83,7 @@ export default function TransactionList({
             <div
               key={tx.id}
               onClick={() => setSelectedTx(tx)}
-              className="flex justify-between items-center border p-4 rounded-lg shadow-card"
+              className="flex justify-between items-center border p-4 rounded-lg shadow-card hover:bg-gray-50 cursor-pointer"
             >
               <div>
                 <p className="font-medium">{tx.merchant?.name}</p>
@@ -92,7 +92,11 @@ export default function TransactionList({
                 </p>
               </div>
               {tx.status.toLowerCase() !== "eligible" && (
+                <div
+                onClick={(e) => e.stopPropagation()} 
+              >
                 <MarkEligibleButton transactionId={tx.id} status={tx.status} />
+                </div>
               )}
             </div>
           ))}
